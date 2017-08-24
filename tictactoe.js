@@ -1,13 +1,13 @@
 const readline = require('readline');
 const rl = readline.createInterface({
-	input: process.stdin,
+  input: process.stdin,
   output: process.stdout,
 });
 
 
-const board = [[7, 8, 9],
-               [4, 5, 6],
-               [1, 2, 3]];
+const board = [[null, null, null],
+               [null, null, null],
+               [null, null, null]];
 
 let currentPlayer = 'x';
 
@@ -48,33 +48,53 @@ function drawBoard() {
 
   let s = (board.join('\n').replace(new RegExp(',','g'),'|'));
 
-  s = s.replace(new RegExp('1|2|3|4|5|6|7|8|9','g'),' ');
-
   console.log(s);
 }
 
 function nextMove() {
   rl.question('Player, '+ currentPlayer +' make a move!\n',
-              function checkInput(answer) {
-    board.forEach(function(item, i) {
-      item.forEach(function(item, j) {
-        if (Number(answer) === item) {
-          board[i][j] = currentPlayer;
+              function (answer) {
+    let i = 3 - Math.floor((answer - 1) / 3) - 1;
+    let j = (answer - 1) % 3;
 
-          squaresLeft -= 1;
+    if(checkLegalMove(i,j)) {
+      board[i][j] = currentPlayer;
+      squaresLeft -= 1;
 
-          if (aI) {
-            aIMove();
-          } else {
-            currentPlayer = nextPlayer();
-          }
-        }
-      });
-    });
-  drawBoard();
+      if (aI) {
+        aIMove();
+      } else {
+        currentPlayer = nextPlayer();
+      }
 
-  nextMove();
+      drawBoard();
+      nextMove();
+
+    } else {
+      nextMove();
+    }
   });
+}
+
+function checkLegalMove(row, col) {
+
+  if(isFinite(row) && isFinite(col)) {
+    if((row < 0 || row >= board.length) ||
+      (col < 0 || col >= board[row].length)) {
+      console.log('Out of bounds, try another position\n');
+
+      return false;
+    }
+
+    if(board[row][col]) {
+      console.log('Cell occupied, try another position\n');
+
+      return false;
+    }
+    return true;
+  }
+  console.log("Invalid character. Try numbers between 1 and 9.\n")
+  return false;
 }
 
 function aIMove() {
