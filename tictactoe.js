@@ -4,10 +4,14 @@ const rl = readline.createInterface({
   output: process.stdout,
 });
 
+let board = null;
 
-const board = [[null, null, null],
-               [null, null, null],
-               [null, null, null]];
+function Board() {
+  //use numpad to fill in the board
+  return [[null, null, null],   //[7,8,9]
+          [null, null, null],   //[4,5,6]
+          [null, null, null]];  //[1,2,3]
+}
 
 const leftDiagonal = [[0,0], [1,1], [2,2]];
 const rightDiagonal = [[2,0], [1,1], [0,2]];
@@ -18,12 +22,17 @@ let aI = false;
 
 let squaresLeft = 9;
 
-let greetings = '*TICTACTOE* \nHit 1 to play against a dumb-ass AI \nHit 2 for two-player mode \n';
+let greetings = '*TICTACTOE* \nHit 1 to play against a dumb-ass AI \nHit 2 for two-player mode \nHit 0 to quit\n';
 
-function startGame() {
+function startNewGame() {
+
+  board = new Board();
 
   rl.question(greetings, function(answer) {
       switch(answer) {
+        case '0':
+          process.exit();
+          break;
 
         case '1':
           aI = true;
@@ -35,7 +44,7 @@ function startGame() {
           break;
 
         default:
-          startGame();
+          startNewGame();
           break;
       }
   });
@@ -49,7 +58,7 @@ function nextPlayer() {
 
 function drawBoard() {
 
-  console.log(board.map(row => row.map(e => e || ' ').join('|')).join('\n'));
+console.log(board.map(row => row.map(e => e || ' ').join('|')).join('\n'));
 }
 
 function nextMove() {
@@ -177,17 +186,17 @@ function checkEndgame(row, col) {
 
     drawBoard();
     console.log(`Player ` + `${currentPlayer} wins!\n`);
-    process.exit();
+    startNewGame();
 
   } else if(isDraw()) {
 
     drawBoard();
     console.log("It's a draw!\n");
-    process.exit();
+    startNewGame();
 
   } else {
 
   }
 }
 
-startGame();
+startNewGame();
