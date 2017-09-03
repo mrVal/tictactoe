@@ -1,8 +1,6 @@
-const readline = require('readline');
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout,
-});
+const prompt = require('syncprompt');
+
+let mainGameLoopRunnig = true;
 
 let board = null;
 
@@ -28,26 +26,28 @@ function startNewGame() {
 
   board = new Board();
 
-  rl.question(greetings, function(answer) {
-      switch(answer) {
-        case '0':
-          process.exit();
-          break;
+  checkMenuInput(prompt(greetings));
+}
 
-        case '1':
-          aI = true;
-          nextMove();
-          break;
+function checkMenuInput(answer) {
+  switch(answer) {
+    case '0':
+      process.exit();
+      break;
 
-        case '2':
-          nextMove();
-          break;
+    case '1':
+      aI = true;
+      nextMove();
+      break;
 
-        default:
-          startNewGame();
-          break;
-      }
-  });
+    case '2':
+      nextMove();
+      break;
+
+    default:
+      startNewGame();
+      break;
+  }
 }
 
 function nextPlayer() {
@@ -65,8 +65,10 @@ function nextMove() {
 
   drawBoard();
 
-  rl.question('Player, '+ currentPlayer +' make a move!\n',
-              function (answer) {
+  while(mainGameLoopRunnig) {
+
+    let answer = prompt('Player, '+ currentPlayer +' make a move!\n');
+
     let i = 3 - Math.floor((answer - 1) / 3) - 1;
     let j = (answer - 1) % 3;
 
@@ -94,7 +96,7 @@ function nextMove() {
     } else {
       nextMove();
     }
-  });
+  }
 }
 
 function checkLegalMove(row, col) {
