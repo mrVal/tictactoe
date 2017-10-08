@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 "use strict";
 
-const tictactoe = require('../src/tictactoe');
+const Game = require('../src/tictactoe').Game;
 
-tictactoe.Game.run();
+const game = new Game();
+
+game.startNewGame();

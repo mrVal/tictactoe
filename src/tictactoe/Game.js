@@ -1,210 +1,211 @@
 const prompt = require('syncprompt');
 
-module.exports = {
+module.exports = class Game {
 
-  run() {
+  constructor() {
 
-    let mainGameLoopRunnig = true;
+    this.mainGameLoopRunnig = true;
 
-    let board = null;
+    this.board = null;
 
-    function Board() {
-      //use numpad to fill in the board
-      return [[null, null, null],   //[7,8,9]
-              [null, null, null],   //[4,5,6]
-              [null, null, null]];  //[1,2,3]
+    this.leftDiagonal = [[0,0], [1,1], [2,2]];
+    this.rightDiagonal = [[2,0], [1,1], [0,2]];
+
+    this.currentPlayer = 'x';
+
+    this.aI = false;
+
+    this.squaresLeft = 9;
+
+    this.greetings = '*TICTACTOE* \nHit 1 to play against a dumb-ass AI \nHit 2 for two-player mode \nHit 0 to quit\n';
+  }
+
+  Board() {
+    //use numpad to fill in the board
+    return [[null, null, null],   //[7,8,9]
+            [null, null, null],   //[4,5,6]
+            [null, null, null]];  //[1,2,3]
+  }
+
+  startNewGame() {
+
+    this.board = this.Board();
+
+    this.checkMenuInput(prompt(this.greetings));
+  }
+
+  checkMenuInput(answer) {
+    switch(answer) {
+      case '0':
+        process.exit();
+        break;
+
+      case '1':
+        this.aI = true;
+        this.nextMove();
+        break;
+
+      case '2':
+        this.nextMove();
+        break;
+
+      default:
+        this.startNewGame();
+        break;
     }
+  }
 
-    const leftDiagonal = [[0,0], [1,1], [2,2]];
-    const rightDiagonal = [[2,0], [1,1], [0,2]];
+  nextPlayer() {
+    (this.currentPlayer === 'x') ? this.currentPlayer = 'o': this.currentPlayer = 'x';
 
-    let currentPlayer = 'x';
+    return this.currentPlayer;
+  }
 
-    let aI = false;
+  drawBoard() {
 
-    let squaresLeft = 9;
+  console.log(this.board.map(row => row.map(e => e || ' ').join('|')).join('\n'));
+  }
 
-    let greetings = '*TICTACTOE* \nHit 1 to play against a dumb-ass AI \nHit 2 for two-player mode \nHit 0 to quit\n';
+  nextMove() {
 
-    function startNewGame() {
+    this.drawBoard();
 
-      board = new Board();
+    while(this.mainGameLoopRunnig) {
 
-      checkMenuInput(prompt(greetings));
-    }
+      let answer = prompt('Player, '+ this.currentPlayer +' make a move!\n');
 
-    function checkMenuInput(answer) {
-      switch(answer) {
-        case '0':
-          process.exit();
-          break;
+      let i = 3 - Math.floor((answer - 1) / 3) - 1;
+      let j = (answer - 1) % 3;
 
-        case '1':
-          aI = true;
-          nextMove();
-          break;
+      let aIPosition = [null, null];
 
-        case '2':
-          nextMove();
-          break;
+      if(this.checkLegalMove(i,j)) {
+        this.board[i][j] = this.currentPlayer;
+        this.squaresLeft -= 1;
 
-        default:
-          startNewGame();
-          break;
-      }
-    }
+        this.checkEndgame(i, j);
 
-    function nextPlayer() {
-      (currentPlayer === 'x') ? currentPlayer = 'o': currentPlayer = 'x';
+        if(this.aI) {
+          this.currentPlayer = this.nextPlayer();
 
-      return currentPlayer;
-    }
+          aIPosition = this.aIMove();
 
-    function drawBoard() {
+          this.checkEndgame(aIPosition[0], aIPosition[1]);
 
-    console.log(board.map(row => row.map(e => e || ' ').join('|')).join('\n'));
-    }
-
-    function nextMove() {
-
-      drawBoard();
-
-      while(mainGameLoopRunnig) {
-
-        let answer = prompt('Player, '+ currentPlayer +' make a move!\n');
-
-        let i = 3 - Math.floor((answer - 1) / 3) - 1;
-        let j = (answer - 1) % 3;
-
-        if(checkLegalMove(i,j)) {
-          board[i][j] = currentPlayer;
-          squaresLeft -= 1;
-
-          checkEndgame(i, j);
-
-          if(aI) {
-            currentPlayer = nextPlayer();
-
-            [aIRow, aICol] = aIMove();
-
-
-            checkEndgame(aIRow, aICol);
-
-            currentPlayer = nextPlayer();
-          } else {
-            currentPlayer = nextPlayer();
-          }
-
-          nextMove();
-
+          this.currentPlayer = this.nextPlayer();
         } else {
-          nextMove();
-        }
-      }
-    }
-
-    function checkLegalMove(row, col) {
-
-      if(isFinite(row) && isFinite(col)) {
-        if((row < 0 || row >= board.length) ||
-          (col < 0 || col >= board[row].length)) {
-          console.log('Out of bounds, try another position\n');
-
-          return false;
+          this.currentPlayer = this.nextPlayer();
         }
 
-        if(board[row][col]) {
-          console.log('Cell occupied, try another position\n');
+        this.nextMove();
 
-          return false;
-        }
-        return true;
-      }
-      console.log("Invalid character. Try numbers between 1 and 9.\n")
-      return false;
-    }
-
-    function aIMove() {
-
-        let rndI = Math.floor(Math.random() * board.length);
-
-        let rndJ = Math.floor(Math.random() * board[rndI].length);
-
-        if (board[rndI][rndJ] !== 'x' && board[rndI][rndJ] !== 'o') {
-
-          board[rndI][rndJ] = currentPlayer;
-          squaresLeft -= 1;
-
-        } else if (squaresLeft > 0){
-            aIMove();
-        } else {
-
-        }
-        return [rndI,rndJ];
-    }
-
-    function isWin(row, col) {
-
-      let win;
-      let lines = [];
-
-      [leftDiagonal, rightDiagonal].map(function(line) {
-        line.map(function(cell) {
-          if(cell[0] === row && cell[1] === col) {
-            lines.push(line);
-          }
-        })
-      });
-
-      lines.push([0, 1, 2].map(function(c1) {
-        return [row, c1];
-      }));
-
-      lines.push([0, 1, 2].map(function(r1) {
-        return [r1, col];
-      }));
-
-      win = lines.some(function(line) {
-        return line.every(function(cell) {
-          return board[cell[0]][cell[1]] === currentPlayer;
-        });
-      });
-
-      return win;
-    }
-
-    function isDraw() {
-      let flatBoard = [];
-
-      for(let i = 0; i < board.length; i++) {
-        flatBoard = flatBoard.concat(board[i]);
-      }
-
-      if(!(flatBoard.includes(null))) {
-          return true;
-        } else {
-          return false;
+      } else {
+        this.nextMove();
       }
     }
+  }
 
-    function checkEndgame(row, col) {
-      if(isWin(row, col)) {
+  checkLegalMove(row, col) {
 
-        drawBoard();
-        console.log(`Player ` + `${currentPlayer} wins!\n`);
-        startNewGame();
+    if(isFinite(row) && isFinite(col)) {
+      if((row < 0 || row >= this.board.length) ||
+        (col < 0 || col >= this.board[row].length)) {
+        console.log('Out of bounds, try another position\n');
 
-      } else if(isDraw()) {
+        return false;
+      }
 
-        drawBoard();
-        console.log("It's a draw!\n");
-        startNewGame();
+      if(this.board[row][col]) {
+        console.log('Cell occupied, try another position\n');
 
+        return false;
+      }
+      return true;
+    }
+    console.log("Invalid character. Try numbers between 1 and 9.\n")
+    return false;
+  }
+
+  aIMove() {
+
+      let rndI = Math.floor(Math.random() * this.board.length);
+
+      let rndJ = Math.floor(Math.random() * this.board[rndI].length);
+
+      if (this.board[rndI][rndJ] !== 'x' && this.board[rndI][rndJ] !== 'o') {
+
+        this.board[rndI][rndJ] = this.currentPlayer;
+        this.squaresLeft -= 1;
+
+      } else if (this.squaresLeft > 0){
+          this.aIMove();
       } else {
 
       }
+      return [rndI,rndJ];
+  }
+
+  isWin(row, col) {
+
+    let win;
+    let lines = [];
+    let board = this.board;
+    let currentPlayer = this.currentPlayer;
+
+    [this.leftDiagonal, this.rightDiagonal].map(function(line) {
+      line.map(function(cell) {
+        if(cell[0] === row && cell[1] === col) {
+          lines.push(line);
+        }
+      })
+    });
+
+    lines.push([0, 1, 2].map(function(c1) {
+      return [row, c1];
+    }));
+
+    lines.push([0, 1, 2].map(function(r1) {
+      return [r1, col];
+    }));
+
+    win = lines.some(function(line) {
+      return line.every(function(cell) {
+        return board[cell[0]][cell[1]] === currentPlayer;
+      });
+    });
+
+    return win;
+  }
+
+  isDraw() {
+    let flatBoard = [];
+
+    for(let i = 0; i < this.board.length; i++) {
+      flatBoard = flatBoard.concat(this.board[i]);
     }
 
-    startNewGame();
+    if(!(flatBoard.includes(null))) {
+        return true;
+      } else {
+        return false;
+    }
   }
-};
+
+  checkEndgame(row, col) {
+    if(this.isWin(row, col)) {
+
+      this.drawBoard();
+      console.log(`Player ` + `${this.currentPlayer} wins!\n`);
+      this.startNewGame();
+
+    } else if(this.isDraw()) {
+
+      this.drawBoard();
+      console.log("It's a draw!\n");
+      this.startNewGame();
+
+    } else {
+
+    }
+  }
+}
