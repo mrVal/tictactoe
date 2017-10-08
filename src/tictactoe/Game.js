@@ -15,7 +15,7 @@ module.exports = class Game {
 
     this.aI = false;
 
-    this.squaresLeft = 9;
+    this.squaresLeft;
 
     this.greetings = '*TICTACTOE* \nHit 1 to play against a dumb-ass AI \nHit 2 for two-player mode \nHit 0 to quit\n';
   }
@@ -30,6 +30,7 @@ module.exports = class Game {
   startNewGame() {
 
     this.board = this.Board();
+    this.squaresLeft = 9;
 
     this.checkMenuInput(prompt(this.greetings));
   }
