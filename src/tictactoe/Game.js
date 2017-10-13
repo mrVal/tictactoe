@@ -4,12 +4,7 @@ module.exports = class Game {
 
   constructor() {
 
-    this.mainGameLoopRunnig = true;
-
     this.board = null;
-
-    this.leftDiagonal = [[0,0], [1,1], [2,2]];
-    this.rightDiagonal = [[2,0], [1,1], [0,2]];
 
     this.currentPlayer = 'x';
 
@@ -17,7 +12,6 @@ module.exports = class Game {
 
     this.squaresLeft;
 
-    this.greetings = '*TICTACTOE* \nHit 1 to play against a dumb-ass AI \nHit 2 for two-player mode \nHit 0 to quit\n';
   }
 
   Board() {
@@ -27,16 +21,15 @@ module.exports = class Game {
             [null, null, null]];  //[1,2,3]
   }
 
-  startNewGame() {
+  start() {
+
+    let greetings = '*TICTACTOE* \nHit 1 to play against a dumb-ass AI \n' +
+                    'Hit 2 for two-player mode \nHit 0 to quit\n';
 
     this.board = this.Board();
     this.squaresLeft = 9;
 
-    this.checkMenuInput(prompt(this.greetings));
-  }
-
-  checkMenuInput(answer) {
-    switch(answer) {
+    switch(prompt(greetings)) {
       case '0':
         process.exit();
         break;
@@ -47,31 +40,34 @@ module.exports = class Game {
         break;
 
       case '2':
+        this.aI = false;
         this.nextMove();
         break;
 
       default:
-        this.startNewGame();
+        this.start();
         break;
     }
   }
 
   nextPlayer() {
-    (this.currentPlayer === 'x') ? this.currentPlayer = 'o': this.currentPlayer = 'x';
+    (this.currentPlayer === 'x') ? this.currentPlayer = 'o'
+                                 : this.currentPlayer = 'x';
 
     return this.currentPlayer;
   }
 
   drawBoard() {
 
-  console.log(this.board.map(row => row.map(e => e || ' ').join('|')).join('\n'));
+    console.log(this.board.map(row => row.map(e => e || ' ').join('|'))
+                                                            .join('\n'));
   }
 
   nextMove() {
 
     this.drawBoard();
 
-    while(this.mainGameLoopRunnig) {
+    while(true) {
 
       let answer = prompt('Player, '+ this.currentPlayer +' make a move!\n');
 
@@ -129,21 +125,21 @@ module.exports = class Game {
 
   aIMove() {
 
-      let rndI = Math.floor(Math.random() * this.board.length);
+    let rndI = Math.floor(Math.random() * this.board.length);
 
-      let rndJ = Math.floor(Math.random() * this.board[rndI].length);
+    let rndJ = Math.floor(Math.random() * this.board[rndI].length);
 
-      if (this.board[rndI][rndJ] !== 'x' && this.board[rndI][rndJ] !== 'o') {
+    if (this.board[rndI][rndJ] !== 'x' && this.board[rndI][rndJ] !== 'o') {
 
-        this.board[rndI][rndJ] = this.currentPlayer;
-        this.squaresLeft -= 1;
+      this.board[rndI][rndJ] = this.currentPlayer;
+      this.squaresLeft -= 1;
 
-      } else if (this.squaresLeft > 0){
-          this.aIMove();
-      } else {
+    } else if (this.squaresLeft > 0){
+        this.aIMove();
+    } else {
 
-      }
-      return [rndI,rndJ];
+    }
+    return [rndI,rndJ];
   }
 
   isWin(row, col) {
@@ -152,8 +148,10 @@ module.exports = class Game {
     let lines = [];
     let board = this.board;
     let currentPlayer = this.currentPlayer;
+    let leftDiagonal = [[0,0], [1,1], [2,2]];
+    let rightDiagonal = [[2,0], [1,1], [0,2]];
 
-    [this.leftDiagonal, this.rightDiagonal].map(function(line) {
+    [leftDiagonal, rightDiagonal].map(function(line) {
       line.map(function(cell) {
         if(cell[0] === row && cell[1] === col) {
           lines.push(line);
@@ -197,13 +195,13 @@ module.exports = class Game {
 
       this.drawBoard();
       console.log(`Player ` + `${this.currentPlayer} wins!\n`);
-      this.startNewGame();
+      this.start();
 
     } else if(this.isDraw()) {
 
       this.drawBoard();
       console.log("It's a draw!\n");
-      this.startNewGame();
+      this.start();
 
     } else {
 

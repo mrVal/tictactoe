@@ -5,4 +5,4 @@ const Game = require('../src/tictactoe').Game;
 
 const game = new Game();
 
-game.startNewGame();
+game.start();
