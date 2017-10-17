@@ -1,8 +1,33 @@
 #!/usr/bin/env node
 "use strict";
 
+const prompt = require('syncprompt');
+
 const Game = require('../src/tictactoe').Game;
 
-const game = new Game();
+function startMenu() {
 
-game.start();
+  let greetings = '*TICTACTOE* \nHit 1 to play against a dumb-ass AI \n' +
+                  'Hit 2 for two-player mode \nHit 0 to quit\n';
+
+    switch(prompt(greetings)) {
+      case '0':
+        process.exit();
+        break;
+
+      case '1':
+        new Game().play(true);
+        break;
+
+      case '2':
+        new Game().play(false);
+        break;
+
+      default:
+        startMenu();
+        break;
+    }
+  startMenu();
+}
+
+startMenu();

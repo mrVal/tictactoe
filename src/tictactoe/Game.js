@@ -12,42 +12,16 @@ module.exports = class Game {
 
     this.squaresLeft;
 
+    this.board = this.getEmptyBoard();
+    this.squaresLeft = 9;
+
   }
 
-  Board() {
+  getEmptyBoard() {
     //use numpad to fill in the board
     return [[null, null, null],   //[7,8,9]
             [null, null, null],   //[4,5,6]
             [null, null, null]];  //[1,2,3]
-  }
-
-  start() {
-
-    let greetings = '*TICTACTOE* \nHit 1 to play against a dumb-ass AI \n' +
-                    'Hit 2 for two-player mode \nHit 0 to quit\n';
-
-    this.board = this.Board();
-    this.squaresLeft = 9;
-
-    switch(prompt(greetings)) {
-      case '0':
-        process.exit();
-        break;
-
-      case '1':
-        this.aI = true;
-        this.nextMove();
-        break;
-
-      case '2':
-        this.aI = false;
-        this.nextMove();
-        break;
-
-      default:
-        this.start();
-        break;
-    }
   }
 
   nextPlayer() {
@@ -63,7 +37,7 @@ module.exports = class Game {
                                                             .join('\n'));
   }
 
-  nextMove() {
+  play(useAI) {
 
     this.drawBoard();
 
@@ -80,25 +54,30 @@ module.exports = class Game {
         this.board[i][j] = this.currentPlayer;
         this.squaresLeft -= 1;
 
-        this.checkEndgame(i, j);
+        if(this.checkEndgame(i, j)) {
+          break;
+        }
 
-        if(this.aI) {
+        if(useAI) {
           this.currentPlayer = this.nextPlayer();
 
           aIPosition = this.aIMove();
 
-          this.checkEndgame(aIPosition[0], aIPosition[1]);
+          if(this.checkEndgame(aIPosition[0], aIPosition[1])) {
+            break;
+          }
 
           this.currentPlayer = this.nextPlayer();
         } else {
           this.currentPlayer = this.nextPlayer();
         }
 
-        this.nextMove();
+        this.play(useAI);
 
       } else {
-        this.nextMove();
+        this.play(useAI);
       }
+      break;
     }
   }
 
@@ -195,13 +174,13 @@ module.exports = class Game {
 
       this.drawBoard();
       console.log(`Player ` + `${this.currentPlayer} wins!\n`);
-      this.start();
+      return true;
 
     } else if(this.isDraw()) {
 
       this.drawBoard();
       console.log("It's a draw!\n");
-      this.start();
+      return true;
 
     } else {
 
