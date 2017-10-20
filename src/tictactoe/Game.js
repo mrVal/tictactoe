@@ -24,14 +24,14 @@ module.exports = class Game {
             [null, null, null]];  //[1,2,3]
   }
 
-  nextPlayer() {
+  _nextPlayer() {
     (this.currentPlayer === 'x') ? this.currentPlayer = 'o'
                                  : this.currentPlayer = 'x';
 
     return this.currentPlayer;
   }
 
-  drawBoard() {
+  _drawBoard() {
 
     console.log(this.board.map(row => row.map(e => e || ' ').join('|'))
                                                             .join('\n'));
@@ -39,49 +39,43 @@ module.exports = class Game {
 
   play(useAI) {
 
-    this.drawBoard();
-
     while(true) {
 
-      let answer = prompt('Player, '+ this.currentPlayer +' make a move!\n');
+      this._drawBoard();
 
-      let i = 3 - Math.floor((answer - 1) / 3) - 1;
-      let j = (answer - 1) % 3;
+      const [row, col] = this._playerMove();
 
-      let aIPosition = [null, null];
+      if(!this._checkLegalMove(row, col)) continue;
 
-      if(this.checkLegalMove(i,j)) {
-        this.board[i][j] = this.currentPlayer;
+        this.board[row][col] = this.currentPlayer;
         this.squaresLeft -= 1;
 
-        if(this.checkEndgame(i, j)) {
-          break;
-        }
+      if(this._checkEndgame(row, col)) break;
 
-        if(useAI) {
-          this.currentPlayer = this.nextPlayer();
+      this.currentPlayer = this._nextPlayer();
 
-          aIPosition = this.aIMove();
+      if(useAI) {
+        const [aIRow, aICol] = this._getAIMove();
 
-          if(this.checkEndgame(aIPosition[0], aIPosition[1])) {
-            break;
-          }
+        if(this._checkEndgame(aIRow, aICol)) break;
 
-          this.currentPlayer = this.nextPlayer();
-        } else {
-          this.currentPlayer = this.nextPlayer();
-        }
+      this.currentPlayer = this._nextPlayer();
 
-        this.play(useAI);
-
-      } else {
-        this.play(useAI);
       }
-      break;
     }
   }
 
-  checkLegalMove(row, col) {
+  _playerMove() {
+
+    let answer = prompt('Player, '+ this.currentPlayer +' make a move!\n');
+
+    let i = 3 - Math.floor((answer - 1) / 3) - 1;
+    let j = (answer - 1) % 3;
+
+    return [i,j];
+  }
+
+  _checkLegalMove(row, col) {
 
     if(isFinite(row) && isFinite(col)) {
       if((row < 0 || row >= this.board.length) ||
@@ -102,7 +96,7 @@ module.exports = class Game {
     return false;
   }
 
-  aIMove() {
+  _getAIMove() {
 
     let rndI = Math.floor(Math.random() * this.board.length);
 
@@ -114,14 +108,14 @@ module.exports = class Game {
       this.squaresLeft -= 1;
 
     } else if (this.squaresLeft > 0){
-        this.aIMove();
+        this._getAIMove();
     } else {
 
     }
     return [rndI,rndJ];
   }
 
-  isWin(row, col) {
+  _isWin(row, col) {
 
     let win;
     let lines = [];
@@ -155,7 +149,7 @@ module.exports = class Game {
     return win;
   }
 
-  isDraw() {
+  _isDraw() {
     let flatBoard = [];
 
     for(let i = 0; i < this.board.length; i++) {
@@ -169,16 +163,16 @@ module.exports = class Game {
     }
   }
 
-  checkEndgame(row, col) {
-    if(this.isWin(row, col)) {
+  _checkEndgame(row, col) {
+    if(this._isWin(row, col)) {
 
-      this.drawBoard();
+      this._drawBoard();
       console.log(`Player ` + `${this.currentPlayer} wins!\n`);
       return true;
 
-    } else if(this.isDraw()) {
+    } else if(this._isDraw()) {
 
-      this.drawBoard();
+      this._drawBoard();
       console.log("It's a draw!\n");
       return true;
 
