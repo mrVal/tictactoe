@@ -6,20 +6,23 @@ const prompt = require('syncprompt');
 const Game = require('../src/tictactoe').Game;
 
 function startMenu() {
-  let greetings = '*TICTACTOE* \nHit 1 to play against a dumb-ass AI \n' +
-                  'Hit 2 for two-player mode \nHit 0 to quit\n';
-
-  const modes = [function() {process.exit()},
-                 function() {new Game().play(true)},
-                 function() {new Game().play(false)}];
-
-  let input = prompt(greetings);
-
-  if(modes[input] !== undefined) {
-    modes[input]();
+  const greetings = '*TICTACTOE*\nHit 1 to play against a dumb-ass AI\n' +
+                    'Hit 2 for two-player mode\nHit 0 to quit\n';
+  const exitGame = function () {
+    process.exit();
   }
+  const startSinglePlayer = function() {
+    new Game().play(true);
+  }
+  const startTwoPlayer = function() {
+    new Game().play(false);
+  }
+  const menuItems = [exitGame, startSinglePlayer, startTwoPlayer];
+  let userChoice = prompt(greetings);
 
-  return input;
+  menuItems[userChoice] && menuItems[userChoice]();
+
+  return userChoice;
 }
 
 while(startMenu());
