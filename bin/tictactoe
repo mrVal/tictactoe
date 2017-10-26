@@ -6,7 +6,8 @@ const prompt = require('syncprompt');
 const Game = require('../src/tictactoe').Game;
 
 function startMenu() {
-  const greetings = '*TICTACTOE*\nHit 1 to play against a dumb-ass AI\n' +
+  const greetings = '*TICTACTOE*\n--Use numPad to fill the grid--\n' +
+                    'Hit 1 to play against a dumb-ass AI\n' +
                     'Hit 2 for two-player mode\nHit 0 to quit\n';
   const exitGame = function () {
     process.exit();

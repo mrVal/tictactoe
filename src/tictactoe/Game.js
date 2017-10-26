@@ -4,13 +4,9 @@ module.exports = class Game {
 
   constructor() {
     this.board = null;
-
     this.currentPlayer = 'x';
-
     this.aI = false;
-
     this.squaresLeft = 9;
-
     this.board = this._getEmptyBoard();
   }
 
@@ -23,7 +19,7 @@ module.exports = class Game {
       if(!this._isLegalMove(row, col)) continue;
 
         this.board[row][col] = this.currentPlayer;
-        this.squaresLeft -= 1;
+        this._reduceFreeSquaresNumber();
 
       if(this._isGameOver(row, col)) break;
 
@@ -37,7 +33,6 @@ module.exports = class Game {
         this._swapPlayer()
       }
     }
-
   }
 
   _getEmptyBoard() {
@@ -45,6 +40,10 @@ module.exports = class Game {
     return [[null, null, null],   //[7,8,9]
             [null, null, null],   //[4,5,6]
             [null, null, null]];  //[1,2,3]
+  }
+
+  _reduceFreeSquaresNumber() {
+    this.squaresLeft -= 1;
   }
 
   _swapPlayer() {
@@ -93,7 +92,7 @@ module.exports = class Game {
 
     if(this.board[rndI][rndJ] !== 'x' && this.board[rndI][rndJ] !== 'o') {
       this.board[rndI][rndJ] = this.currentPlayer;
-      this.squaresLeft -= 1;
+      this._reduceFreeSquaresNumber();
     } else if (this.squaresLeft > 0){
       this._getAIMove();
     }
