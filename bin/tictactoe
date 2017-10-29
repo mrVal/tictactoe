@@ -13,10 +13,10 @@ function startMenu() {
     process.exit();
   }
   const startSinglePlayer = function() {
-    new Game().play(true);
+    new Game({withAI: true}).play();
   }
   const startTwoPlayer = function() {
-    new Game().play(false);
+    new Game().play();
   }
   const menuItems = [exitGame, startSinglePlayer, startTwoPlayer];
   let userChoice = prompt(greetings);

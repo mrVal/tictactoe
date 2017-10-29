@@ -2,36 +2,22 @@ const prompt = require('syncprompt');
 
 module.exports = class Game {
 
-  constructor() {
-    this.board = null;
-    this.currentPlayer = 'x';
-    this.aI = false;
-    this.squaresLeft = 9;
+  constructor(aI) {
+    this.currentPlayer = 'o';
+    if(arguments[0]) this.useAI = aI.withAI;
     this.board = this._getEmptyBoard();
+    this.currentMove = null;
   }
 
-  play(useAI) {
+  play() {
 
     while(true) {
       this._drawBoard();
-      const [row, col] = this._playerMove();
 
-      if(!this._isLegalMove(row, col)) continue;
-
-        this.board[row][col] = this.currentPlayer;
-        this._reduceFreeSquaresNumber();
-
-      if(this._isGameOver(row, col)) break;
+      if(this._isGameOver(this.currentMove)) break;
 
       this._swapPlayer();
-
-      if(useAI) {
-        const [aIRow, aICol] = this._getAIMove();
-
-        if(this._isGameOver(aIRow, aICol)) break;
-
-        this._swapPlayer()
-      }
+      this.currentMove = this._move();
     }
   }
 
@@ -42,8 +28,11 @@ module.exports = class Game {
             [null, null, null]];  //[1,2,3]
   }
 
-  _reduceFreeSquaresNumber() {
-    this.squaresLeft -= 1;
+  _transformToBoardCoordinates(digit) {
+    let i = 3 - Math.floor((digit - 1) / 3) - 1;
+    let j = (digit - 1) % 3;
+
+    return [i,j];
   }
 
   _swapPlayer() {
@@ -56,12 +45,32 @@ module.exports = class Game {
                                                             .join('\n'));
   }
 
-  _playerMove() {
+  _getKeyboardInput() {
     let answer = prompt('Player, '+ this.currentPlayer +' make a move!\n');
-    let i = 3 - Math.floor((answer - 1) / 3) - 1;
-    let j = (answer - 1) % 3;
 
-    return [i,j];
+    return answer;
+  }
+
+  _move() {
+    let answer = this._getPlayerMove();
+
+    const [row, col] = this._transformToBoardCoordinates(answer);
+
+    if(this._isLegalMove(row, col)) {
+      this.board[row][col] = this.currentPlayer;
+      return [row, col];
+    } else {
+      return this._move();
+    }
+  }
+
+  _getPlayerMove() {
+
+    if(this.useAI && this.currentPlayer === 'o') {
+      return this._getAIMove();
+    } else {
+      return this._getKeyboardInput();
+    }
   }
 
   _isLegalMove(row, col) {
@@ -87,17 +96,10 @@ module.exports = class Game {
   }
 
   _getAIMove() {
-    let rndI = Math.floor(Math.random() * this.board.length);
-    let rndJ = Math.floor(Math.random() * this.board[rndI].length);
-
-    if(this.board[rndI][rndJ] !== 'x' && this.board[rndI][rndJ] !== 'o') {
-      this.board[rndI][rndJ] = this.currentPlayer;
-      this._reduceFreeSquaresNumber();
-    } else if (this.squaresLeft > 0){
-      this._getAIMove();
-    }
-
-    return [rndI,rndJ];
+    console.log("Your computer opponent makes a move...");
+    const max = (this.board.length * this.board[0].length);
+    let rndNum = 1 + Math.random() * max;
+    return Math.floor(rndNum);
   }
 
   _isWin(row, col) {
@@ -145,16 +147,20 @@ module.exports = class Game {
     return !flatBoard.includes(null);
   }
 
-  _isGameOver(row, col) {
+  _isGameOver(currentMove) {
+
+    if(currentMove === null) return false;
+
+    const[row, col] = currentMove;
 
     if(this._isWin(row, col)) {
-      this._drawBoard();
       console.log(`Player ` + `${this.currentPlayer} wins!\n`);
       return true;
     } else if(this._isDraw()) {
-      this._drawBoard();
       console.log("It's a draw!\n");
       return true;
+    } else {
+      return false;
     }
   }
 }
