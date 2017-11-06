@@ -2,9 +2,9 @@ const prompt = require('syncprompt');
 
 module.exports = class Game {
 
-  constructor(aI) {
+  constructor({withAI} = {}) {
     this.currentPlayer = 'o';
-    if(arguments[0]) this.useAI = aI.withAI;
+    this.withAI = withAI;
     this.board = this._getEmptyBoard();
     this.currentMove = null;
   }
@@ -66,7 +66,7 @@ module.exports = class Game {
 
   _getPlayerMove() {
 
-    if(this.useAI && this.currentPlayer === 'o') {
+    if(this.withAI && this.currentPlayer === 'o') {
       return this._getAIMove();
     } else {
       return this._getKeyboardInput();
@@ -95,11 +95,12 @@ module.exports = class Game {
     return false;
   }
 
+    //function range [1, 9]
   _getAIMove() {
     console.log("Your computer opponent makes a move...");
+    const min = 1;
     const max = (this.board.length * this.board[0].length);
-    let rndNum = 1 + Math.random() * max;
-    return Math.floor(rndNum);
+    return Math.floor(min + Math.random() * max);
   }
 
   _isWin(row, col) {
