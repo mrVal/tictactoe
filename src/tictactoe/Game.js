@@ -10,7 +10,6 @@ module.exports = class Game {
   }
 
   play() {
-
     while(true) {
       this._drawBoard();
 
@@ -65,7 +64,6 @@ module.exports = class Game {
   }
 
   _getPlayerMove() {
-
     if(this.withAI && this.currentPlayer === 'o') {
       return this._getAIMove();
     } else {
@@ -74,9 +72,7 @@ module.exports = class Game {
   }
 
   _isLegalMove(row, col) {
-
     if(isFinite(row) && isFinite(col)) {
-
       if((row < 0 || row >= this.board.length) ||
         (col < 0 || col >= this.board[row].length)) {
         console.log('Out of bounds, try another position\n');
@@ -91,6 +87,7 @@ module.exports = class Game {
 
       return true;
     }
+
     console.log("Invalid character. Try numbers between 1 and 9.\n");
     return false;
   }
@@ -114,11 +111,9 @@ module.exports = class Game {
 
     [leftDiagonal, rightDiagonal].map(function(line) {
       line.map(function(cell) {
-
         if(cell[0] === row && cell[1] === col) {
           lines.push(line);
         }
-
       })
     });
 
@@ -150,7 +145,6 @@ module.exports = class Game {
   }
 
   _isGameOver() {
-
     if(!this.currentMove) return false;
 
     if(this._isWin()) {
