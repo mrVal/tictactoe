@@ -14,7 +14,7 @@ module.exports = class Game {
     while(true) {
       this._drawBoard();
 
-      if(this._isGameOver(this.currentMove)) break;
+      if(this._isGameOver()) break;
 
       this._swapPlayer();
       this.currentMove = this._move();
@@ -103,7 +103,8 @@ module.exports = class Game {
     return Math.floor(min + Math.random() * max);
   }
 
-  _isWin(row, col) {
+  _isWin() {
+    const[row, col] = this.currentMove;
     let win;
     let lines = [];
     let board = this.board;
@@ -141,20 +142,18 @@ module.exports = class Game {
   _isDraw() {
     let flatBoard = [];
 
-    for(let i = 0; i < this.board.length; i++) {
-      flatBoard = flatBoard.concat(this.board[i]);
-    }
+    this.board.map(function(e){
+      flatBoard = flatBoard.concat(e);
+    });
 
     return !flatBoard.includes(null);
   }
 
-  _isGameOver(currentMove) {
+  _isGameOver() {
 
-    if(currentMove === null) return false;
+    if(!this.currentMove) return false;
 
-    const[row, col] = currentMove;
-
-    if(this._isWin(row, col)) {
+    if(this._isWin()) {
       console.log(`Player ` + `${this.currentPlayer} wins!\n`);
       return true;
     } else if(this._isDraw()) {
