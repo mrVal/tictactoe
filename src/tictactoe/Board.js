@@ -1,4 +1,4 @@
-const BoardInvalidRequest = require('.').BoardInvalidRequest;
+const BoardInvalidRequest = require('./BoardInvalidRequest');
 
 module.exports = class Board{
 
@@ -27,14 +27,14 @@ module.exports = class Board{
 
   _checkIfBoardPosition(row, col) {
     if(isFinite(row) && isFinite(col)) {
-      if((row < 0 || row >= this.matrix.length) ||
-        (col < 0 || col >= this.matrix[row].length)) {
+      if((row < 0 || row >= this._matrix.length) ||
+        (col < 0 || col >= this._matrix[row].length)) {
         throw new BoardInvalidRequest('Out of board range\n');
       }
     }
   }
 
-  _checkIfOccupied() {
+  _checkIfOccupied(row, col) {
     if(this._matrix[row][col]) {
       throw new BoardInvalidRequest('Cell occupied\n');
     }
@@ -74,6 +74,11 @@ module.exports = class Board{
     return lDiag;
   }
 
+  _getMark(row, col) {
+    this._checkIfBoardPosition(row, col);
+    return this._matrix[row][col];
+  }
+
   toString() {
     return this._matrix.map(row => row.map(e => e || ' ').join('|')).join('\n');
   }
@@ -85,19 +90,19 @@ module.exports = class Board{
   occupyPosition(position, mark) {
     try{
       this._checkIfValidMark(mark);
-      [row, col] = this._transformToMatrixCoord(position);
+      const [row, col] = this._transformToMatrixCoord(position);
       this._checkIfBoardPosition(row, col);
       this._checkIfOccupied(row, col);
-      this._latestMove = [row, col]
+      this._latestMove = [row, col];
       this._matrix[row][col] = mark;
     } catch (e) {
-      console.log("Board occupyPosition exception. " + e.message);
+        console.log("Board occupyPosition exception. " + e.message);
+      throw e;
     }
-
   }
 
   isFull() {
-    return !(this._getFlattened().includes(null));
+    return !(this._getFlattenedMatrix().includes(null));
   }
 
   //for AI or any player to find move range boundaries
@@ -110,30 +115,12 @@ module.exports = class Board{
      return 1;
   }
 
-  ///////
-
-// getWinLines returns and array of lines. Should at least one of them be
-// filled with the same mark, it results it victory
-// use getWinLines() in Game class like this:
-// isWin(){
-//   win = board.getWinLines().some(function(winLine) {
-//       return line.every(function(cell) {
-//         return cell === currentPlayer;
-//       });
-//     });
-//
-//     return win;
-// }
-
   getWinLines() {
-
-    //there is a little glitch. There are a couple of "undefineds"
-    //lurking here.
 
     let winLines = []
 
-    winLines.push(this._rightDiagonal);
-    winLines.push(this._leftDiagonal);
+    winLines.push(this._getRightDiagonal());
+    winLines.push(this._getLeftDiagonal());
     winLines.push(this._matrix[0]);
     winLines.push(this._matrix[1]);
     winLines.push(this._matrix[2]);

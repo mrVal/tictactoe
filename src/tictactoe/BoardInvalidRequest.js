@@ -1,8 +1,14 @@
 module.exports = class BoardInvalidRequest extends Error {
-  constructor (){
+  constructor(msg, ...args) {
+    super(msg, ...args);
 
+    Object.defineProperty(this, 'name', {
+      get: () => this.constructor.name
+    });
+    Object.defineProperty(this, 'message', {
+      get: () => msg || 'Position is not correct'
+    });
+
+    Error.captureStackTrace(this, this.constructor);
   }
-
-  //here goes the code for the custom board exception class
-
 }
