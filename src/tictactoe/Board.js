@@ -6,8 +6,6 @@ module.exports = class Board{
     this._matrix = [[null, null, null],
                     [null, null, null],
                     [null, null, null]];
-
-    this._latestMove = null;
   }
 
   _transformToMatrixCoord(position){
@@ -41,11 +39,9 @@ module.exports = class Board{
   }
 
   _getFlattenedMatrix() {
-    let flattened = [];
-    this._matrix.map(function(e) {
-      flattened = flattened.concat(e);
+    return this._matrix.reduce(function(acc, curr) {
+      return acc.concat(curr);
     });
-    return flattened;
   }
 
   _getColumn(col) {
@@ -83,17 +79,12 @@ module.exports = class Board{
     return this._matrix.map(row => row.map(e => e || ' ').join('|')).join('\n');
   }
 
-  getLatestMove() {
-    return this._latestMove;
-  }
-
   occupyPosition(position, mark) {
     try{
       this._checkIfValidMark(mark);
       const [row, col] = this._transformToMatrixCoord(position);
       this._checkIfBoardPosition(row, col);
       this._checkIfOccupied(row, col);
-      this._latestMove = [row, col];
       this._matrix[row][col] = mark;
     } catch (e) {
         console.log("Board occupyPosition exception. " + e.message);
@@ -102,7 +93,7 @@ module.exports = class Board{
   }
 
   isFull() {
-    return !(this._getFlattenedMatrix().includes(null));
+    return !this._getFlattenedMatrix().includes(null);
   }
 
   //for AI or any player to find move range boundaries

@@ -3,7 +3,7 @@
 
 const prompt = require('syncprompt');
 
-const Game = require('../src/tictactoe').Game;
+const {Game} = require('../src/tictactoe');
 
 function startMenu() {
   const greetings = '*TICTACTOE*\n--Use numPad to fill the grid--\n' +

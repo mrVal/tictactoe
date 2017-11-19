@@ -4,11 +4,10 @@ const BoardInvalidRequest = require('./BoardInvalidRequest');
 
 module.exports = class Game {
 
-  constructor({withAI} = {}) {
+  constructor({withAI = false} = {}) {
     this.currentPlayer = 'o';
     this.withAI = withAI;
     this.board = new Board();
-    this.currentMove = null;
   }
 
   play() {
@@ -18,7 +17,6 @@ module.exports = class Game {
       if(this._isGameOver()) break;
 
       this._swapPlayer();
-      debugger;
       this._move();
     }
   }
@@ -29,18 +27,16 @@ module.exports = class Game {
   }
 
   _drawBoard() {
-    console.log(this.board.toString());
+    console.log(this.board.toString()+"\n");
   }
 
   _getKeyboardInput() {
-    let answer = prompt('Player, '+ this.currentPlayer +' make a move!\n');
-    return answer;
+    return prompt('Player, '+ this.currentPlayer +' make a move!\n');
   }
 
   _move() {
-    let playerMove = this._getPlayerMove();
     try {
-      this.board.occupyPosition(playerMove, this.currentPlayer);
+      this.board.occupyPosition(this._getPlayerMove(), this.currentPlayer);
     } catch (e) {
       if(e instanceof BoardInvalidRequest) {
         this._move();
@@ -51,16 +47,12 @@ module.exports = class Game {
   }
 
   _getPlayerMove() {
-    if(this.withAI && this.currentPlayer === 'o') {
-      return this._getAIMove();
-    } else {
-      return this._getKeyboardInput();
-    }
+    return (this.withAI && this.currentPlayer === 'o')
+    ? this._getAIMove() : this._getKeyboardInput();
   }
 
     //function range [1, 9]
   _getAIMove() {
-    console.log("Your computer opponent makes a move...");
     const min = this.board.getLowerPositionRangeBoundary();
     const max = this.board.getUpperPositionRangeBoundary();
     return Math.floor(min + Math.random() * max);
@@ -68,13 +60,11 @@ module.exports = class Game {
 
   _isWin(){
     let currentPlayer = this.currentPlayer;
-    let win = this.board.getWinLines().some(function(winLine) {
+    return this.board.getWinLines().some(function(winLine) {
       return winLine.every(function(cell) {
         return cell === currentPlayer;
       });
     });
-
-    return win;
   }
 
   _isDraw() {
