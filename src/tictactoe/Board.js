@@ -15,27 +15,22 @@ module.exports = class Board{
     return [i,j];
   }
 
-  _checkIfValidMark(mark) {
-    if((mark ==='x') || (mark === 'o')) {
-
-    } else {
-      throw new BoardInvalidRequest('Invalid mark');
-    }
+  _isValidMark(mark) {
+    return ((mark ==='x') || (mark === 'o'));
   }
 
-  _checkIfBoardPosition(row, col) {
-    if(isFinite(row) && isFinite(col)) {
-      if((row < 0 || row >= this._matrix.length) ||
-        (col < 0 || col >= this._matrix[row].length)) {
-        throw new BoardInvalidRequest('Out of board range\n');
-      }
+  _isBoardPosition(row, col) {
+    if((Number.isInteger(row) && Number.isInteger(col)) &&
+       (row >= 0 && row < this._matrix.length) &&
+       (col >= 0 && col < this._matrix[row].length)) {
+      return true;
     }
+
+    return false;
   }
 
-  _checkIfOccupied(row, col) {
-    if(this._matrix[row][col]) {
-      throw new BoardInvalidRequest('Cell occupied\n');
-    }
+  _isOccupied(row, col) {
+    return (this._matrix[row][col]);
   }
 
   _getFlattenedMatrix() {
@@ -70,33 +65,35 @@ module.exports = class Board{
     return lDiag;
   }
 
-  _getMark(row, col) {
-    this._checkIfBoardPosition(row, col);
+  getMark(row, col) {
+    if(!this._isBoardPosition(row, col))
+      throw new BoardInvalidRequest('Out of board range\n');
+
     return this._matrix[row][col];
+  }
+
+  setBoardPosition(position, mark) {
+    if(!this._isValidMark(mark))
+      throw new BoardInvalidRequest('Invalid Mark\n');
+
+    const [row, col] = this._transformToMatrixCoord(position);
+
+    if(!this._isBoardPosition(row, col))
+      throw new BoardInvalidRequest('Out of board range\n');
+
+    if(this._isOccupied(row, col))
+      throw new BoardInvalidRequest("Position is occupied\n");
+
+    this._matrix[row][col] = mark;
   }
 
   toString() {
     return this._matrix.map(row => row.map(e => e || ' ').join('|')).join('\n');
   }
 
-  occupyPosition(position, mark) {
-    try{
-      this._checkIfValidMark(mark);
-      const [row, col] = this._transformToMatrixCoord(position);
-      this._checkIfBoardPosition(row, col);
-      this._checkIfOccupied(row, col);
-      this._matrix[row][col] = mark;
-    } catch (e) {
-        console.log("Board occupyPosition exception. " + e.message);
-      throw e;
-    }
-  }
-
   isFull() {
     return !this._getFlattenedMatrix().includes(null);
   }
-
-  //for AI or any player to find move range boundaries
 
   getUpperPositionRangeBoundary() {
     return this._getFlattenedMatrix().length;
