@@ -10,6 +10,14 @@ module.exports = class Game {
     this.board = new Board();
   }
 
+  getCurrentPlayer() {
+    return this.currentPlayer;
+  }
+
+  setCurrentPlayer(p) {
+    this.currentPlayer = p;
+  }
+
   play() {
     while(true) {
       this._drawBoard();
@@ -36,9 +44,10 @@ module.exports = class Game {
 
   _move() {
     try {
-      this.board.occupyPosition(this._getPlayerMove(), this.currentPlayer);
+      this.board.setBoardPosition(this._getPlayerMove(), this.currentPlayer);
     } catch (e) {
       if(e instanceof BoardInvalidRequest) {
+        console.log(e.name + ' : ' + e.message);
         this._move();
       } else {
         throw e;
@@ -59,12 +68,8 @@ module.exports = class Game {
   }
 
   _isWin(){
-    let currentPlayer = this.currentPlayer;
-    return this.board.getWinLines().some(function(winLine) {
-      return winLine.every(function(cell) {
-        return cell === currentPlayer;
-      });
-    });
+    return this.board.getWinLines().some(winLine =>
+      winLine.every(cell => cell === this.currentPlayer));
   }
 
   _isDraw() {
