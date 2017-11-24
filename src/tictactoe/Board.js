@@ -95,19 +95,31 @@ module.exports = class Board{
     return column;
   }
 
+  //works for square matrices only
   _getRightDiagonal() {
     let rDiag = [];
-    rDiag.push(this._matrix[2][0]);
-    rDiag.push(this._matrix[1][1]);
-    rDiag.push(this._matrix[0][2]);
+    let topRight = this._matrix[0].length -1;
+    let step = 0;
+
+    this._matrix.map(e => {
+      rDiag.push(e[topRight - step]);
+      step++;
+      });
+
     return rDiag;
   }
 
+  //works for square matrices only
   _getLeftDiagonal() {
     let lDiag = [];
-    lDiag.push(this._matrix[0][0]);
-    lDiag.push(this._matrix[1][1]);
-    lDiag.push(this._matrix[2][2]);
+    let topLeft = 0;
+    let step = 0;
+
+    this._matrix.map(e => {
+      lDiag.push(e[topLeft + step]);
+      step++;
+      });
+
     return lDiag;
   }
 }
