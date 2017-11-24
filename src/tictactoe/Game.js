@@ -5,20 +5,21 @@ const BoardInvalidRequest = require('./BoardInvalidRequest');
 module.exports = class Game {
 
   constructor({withAI = false} = {}) {
-    this.currentPlayer = 'o';
-    this.withAI = withAI;
-    this.board = new Board();
+    this._currentPlayer = 'o';
+    this._withAI = withAI;
+    this._board = new Board();
   }
 
-  getCurrentPlayer() {
-    return this.currentPlayer;
-  }
+  get currentPlayer() { return this._currentPlayer; }
+  get withAI() { return this._withAI; }
+  get board() { return this._board; }
 
-  setCurrentPlayer(p) {
-    this.currentPlayer = p;
+  set currentPlayer(player) {
+    this._currentPlayer = player;
   }
 
   play() {
+
     while(true) {
       this._drawBoard();
 
