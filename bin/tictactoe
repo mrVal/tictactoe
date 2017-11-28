@@ -9,15 +9,12 @@ function startMenu() {
   const greetings = '*TICTACTOE*\n--Use numPad to fill the grid--\n' +
                     'Hit 1 to play against a dumb-ass AI\n' +
                     'Hit 2 for two-player mode\nHit 0 to quit\n';
-  const exitGame = function () {
-    process.exit();
-  }
-  const startSinglePlayer = function() {
-    new Game({withAI: true}).play();
-  }
-  const startTwoPlayer = function() {
-    new Game().play();
-  }
+  const exitGame = () => process.exit();
+
+  const startSinglePlayer = () => new Game({withAI: true}).play();
+
+  const startTwoPlayer = () => new Game().play();
+
   const menuItems = [exitGame, startSinglePlayer, startTwoPlayer];
   let userChoice = prompt(greetings);
 

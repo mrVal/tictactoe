@@ -31,12 +31,11 @@ module.exports = class Game {
   }
 
   _swapPlayer() {
-    (this.currentPlayer === 'x') ? this.currentPlayer = 'o'
-                                 : this.currentPlayer = 'x';
+    this.currentPlayer = (this.currentPlayer === 'x') ? 'o' : 'x';
   }
 
   _drawBoard() {
-    console.log(this.board.toString()+"\n");
+    console.log(`${this.board}\n`);
   }
 
   _getKeyboardInput() {
@@ -45,7 +44,7 @@ module.exports = class Game {
 
   _move() {
     try {
-      this.board.setBoardPosition(this._getPlayerMove(), this.currentPlayer);
+      this.board.setMarkOnBoard(this._getPlayerMove(), this.currentPlayer);
     } catch (e) {
       if(e instanceof BoardInvalidRequest) {
         console.log(e.name + ' : ' + e.message);
@@ -57,14 +56,15 @@ module.exports = class Game {
   }
 
   _getPlayerMove() {
-    return (this.withAI && this.currentPlayer === 'o')
-    ? this._getAIMove() : this._getKeyboardInput();
+    return this.withAI && this.currentPlayer === 'o'
+           ? this._getAIMove()
+           : this._getKeyboardInput();
   }
 
     //function range [1, 9]
   _getAIMove() {
-    const min = this.board.getLowerPositionRangeBoundary();
-    const max = this.board.getUpperPositionRangeBoundary();
+    const min = this.board.lowerPositionRangeBoundary;
+    const max = this.board.upperPositionRangeBoundary;
     return Math.floor(min + Math.random() * max);
   }
 

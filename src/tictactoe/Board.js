@@ -9,41 +9,43 @@ module.exports = class Board{
                     [null, null, null]];// [1, 2, 3]
   }
 
-  getMark(row, col) {
+  getMarkFromBoard(position) {
+
+    const [row, col] = this._transformToBoardCoords(position);
+
     if(!this._isBoardPosition(row, col))
       throw new BoardInvalidRequest('Out of board range');
 
     return this._matrix[row][col];
   }
 
-  setBoardPosition(position, mark) {
+  setMarkOnBoard(position, mark) {
     if(!this._isValidMark(mark))
       throw new BoardInvalidRequest('Invalid Mark');
 
-    const [row, col] = this._transformToMatrixCoord(position);
+    const [row, col] = this._transformToBoardCoords(position);
 
-    if(!this._isBoardPosition(row, col))
-      throw new BoardInvalidRequest('Out of board range');
-
-    if(this._isOccupied(row, col))
+    if(this.getMarkFromBoard(position))
       throw new BoardInvalidRequest("Position is occupied");
 
     this._matrix[row][col] = mark;
   }
 
   toString() {
-    return this._matrix.map(row => row.map(e => e || ' ').join('|')).join('\n');
+    return this._matrix.map(row => row.map(cell => cell || ' ')
+                                                               .join('|'))
+                                                               .join('\n');
   }
 
   isFull() {
     return !this._getFlattenedMatrix().includes(null);
   }
 
-  getUpperPositionRangeBoundary() {
+  get upperPositionRangeBoundary() {
     return this._getFlattenedMatrix().length;
   }
 
-  getLowerPositionRangeBoundary() {
+  get lowerPositionRangeBoundary() {
      return 1;
   }
 
@@ -51,19 +53,14 @@ module.exports = class Board{
 
     let winLines = []
 
-    winLines.push(this._getRightDiagonal());
-    winLines.push(this._getLeftDiagonal());
-    winLines.push(this._matrix[0]);
-    winLines.push(this._matrix[1]);
-    winLines.push(this._matrix[2]);
-    winLines.push(this._getColumn(0));
-    winLines.push(this._getColumn(1));
-    winLines.push(this._getColumn(2));
+    winLines.push(this._getRightDiagonal(), this._getLeftDiagonal(),
+                  this._matrix[0], this._matrix[1], this._matrix[2],
+                  this._getColumn(0), this._getColumn(1), this._getColumn(2));
 
     return winLines;
   }
 
-  _transformToMatrixCoord(position){
+  _transformToBoardCoords(position){
     let row = 3 - Math.floor((position - 1) / 3) - 1;
     let col = (position - 1) % 3;
 
@@ -99,12 +96,10 @@ module.exports = class Board{
   _getRightDiagonal() {
     let rDiag = [];
     let topRight = this._matrix[0].length -1;
-    let step = 0;
 
-    this._matrix.map(e => {
-      rDiag.push(e[topRight - step]);
-      step++;
-      });
+    this._matrix.reduce((previous, current, index) => {
+      rDiag.push(current[topRight - index]);
+    }, 0);
 
     return rDiag;
   }
@@ -113,12 +108,10 @@ module.exports = class Board{
   _getLeftDiagonal() {
     let lDiag = [];
     let topLeft = 0;
-    let step = 0;
 
-    this._matrix.map(e => {
-      lDiag.push(e[topLeft + step]);
-      step++;
-      });
+    this._matrix.reduce((previous, current, index) => {
+      lDiag.push(current[topLeft + index]);
+      }, 0);
 
     return lDiag;
   }
