@@ -7,6 +7,8 @@ module.exports = class Board{
     this._matrix = [[null, null, null], // [7, 8, 9]
                     [null, null, null], // [4, 5, 6]
                     [null, null, null]];// [1, 2, 3]
+    this._topRight = this._matrix[0].length -1;
+    this._topLeft = 0;
   }
 
   getMarkFromBoard(position) {
@@ -50,14 +52,9 @@ module.exports = class Board{
   }
 
   getWinLines() {
-
-    let winLines = []
-
-    winLines.push(this._getRightDiagonal(), this._getLeftDiagonal(),
-                  this._matrix[0], this._matrix[1], this._matrix[2],
-                  this._getColumn(0), this._getColumn(1), this._getColumn(2));
-
-    return winLines;
+    return [this._getRightDiagonal(), this._getLeftDiagonal(),
+            this._matrix[0], this._matrix[1], this._matrix[2],
+            this._getColumn(0), this._getColumn(1), this._getColumn(2)];
   }
 
   _transformToBoardCoords(position){
@@ -94,25 +91,15 @@ module.exports = class Board{
 
   //works for square matrices only
   _getRightDiagonal() {
-    let rDiag = [];
-    let topRight = this._matrix[0].length -1;
-
-    this._matrix.reduce((previous, current, index) => {
-      rDiag.push(current[topRight - index]);
-    }, 0);
-
-    return rDiag;
+    return this._matrix.reduce((acc, current, index) => {
+      return  acc.concat(current[this._topRight - index]);
+    }, []);
   }
 
   //works for square matrices only
   _getLeftDiagonal() {
-    let lDiag = [];
-    let topLeft = 0;
-
-    this._matrix.reduce((previous, current, index) => {
-      lDiag.push(current[topLeft + index]);
-      }, 0);
-
-    return lDiag;
+    return this._matrix.reduce((acc, current, index) => {
+      return acc.concat(current[this._topLeft + index]);
+      }, []);
   }
 }

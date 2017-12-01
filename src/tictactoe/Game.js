@@ -61,7 +61,7 @@ module.exports = class Game {
            : this._getKeyboardInput();
   }
 
-    //function range [1, 9]
+  //function range [1, 9]
   _getAIMove() {
     const min = this.board.lowerPositionRangeBoundary;
     const max = this.board.upperPositionRangeBoundary;
@@ -80,7 +80,7 @@ module.exports = class Game {
   _isGameOver() {
 
     if(this._isWin()) {
-      console.log(`Player ` + `${this.currentPlayer} wins!\n`);
+      console.log(`Player ${this.currentPlayer} wins!\n`);
       return true;
     } else if(this._isDraw()) {
       console.log("It's a draw!\n");
