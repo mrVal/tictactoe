@@ -1,9 +1,7 @@
 const prompt = require('syncprompt');
 const Board = require('./Board');
 const BoardInvalidRequest = require('./BoardInvalidRequest');
-
-const ERROR_MSG_COLOR = 31; // red
-const WIN_MSG_COLOR = 32; // green
+const {display, displayError, displayWin} = require('./utils/display');
 
 module.exports = class Game {
 
@@ -33,16 +31,12 @@ module.exports = class Game {
     }
   }
 
-  displayText(msg, color = 0) {
-    console.log(`\x1b[${color}m${msg}\x1b[0m`);
-  }
-
   _swapPlayer() {
     this.currentPlayer = (this.currentPlayer === 'x') ? 'o' : 'x';
   }
 
   _drawBoard() {
-    this.displayText(`${this.board}\n`);
+    display(this.board);
   }
 
   _getKeyboardInput() {
@@ -54,7 +48,7 @@ module.exports = class Game {
       this.board.setMarkOnBoard(this._getPlayerMove(), this.currentPlayer);
     } catch (e) {
       if(e instanceof BoardInvalidRequest) {
-        this.displayText(e.name + ' : ' + e.message, ERROR_MSG_COLOR);
+        displayError(e.name + ' : ' + e.message);
         this._move();
       } else {
         throw e;
@@ -87,10 +81,10 @@ module.exports = class Game {
   _isGameOver() {
 
     if(this._isWin()) {
-      this.displayText(`Player ${this.currentPlayer} wins!\n`, WIN_MSG_COLOR);
+      displayWin(`Player ${this.currentPlayer} wins!\n`);
       return true;
     } else if(this._isDraw()) {
-      this.displayText(`It's a draw!\n`);
+      display(`It's a draw!\n`);
       return true;
     } else {
       return false;
