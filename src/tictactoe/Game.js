@@ -2,13 +2,17 @@ const prompt = require('syncprompt');
 const Board = require('./Board');
 const BoardInvalidRequest = require('./BoardInvalidRequest');
 const {display, displayError, displayWin} = require('./utils/display');
+const Cycle = require('./utils/Cycle');
+const Player = require('./Player');
 
 module.exports = class Game {
 
   constructor({withAI = false} = {}) {
-    this._currentPlayer = 'o';
     this._withAI = withAI;
     this._board = new Board();
+
+    this._players = new Cycle([new Player('x'), new Player('o', this._withAI)]);
+    this.currentPlayer = this._players.getDefaultPlayer();
   }
 
   get currentPlayer() { return this._currentPlayer; }
@@ -26,26 +30,20 @@ module.exports = class Game {
 
       if(this._isGameOver()) break;
 
-      this._swapPlayer();
+      this.currentPlayer = this._players.next();
       this._move();
     }
-  }
-
-  _swapPlayer() {
-    this.currentPlayer = (this.currentPlayer === 'x') ? 'o' : 'x';
   }
 
   _drawBoard() {
     display(this.board);
   }
 
-  _getKeyboardInput() {
-    return prompt('Player, '+ this.currentPlayer +' make a move!\n');
-  }
-
   _move() {
+
     try {
-      this.board.setMarkOnBoard(this._getPlayerMove(), this.currentPlayer);
+      this.board.setMarkOnBoard(this.currentPlayer.getInput(),
+                                this.currentPlayer.getMark());
     } catch (e) {
       if(e instanceof BoardInvalidRequest) {
         displayError(e.name + ' : ' + e.message);
@@ -56,22 +54,9 @@ module.exports = class Game {
     }
   }
 
-  _getPlayerMove() {
-    return this.withAI && this.currentPlayer === 'o'
-           ? this._getAIMove()
-           : this._getKeyboardInput();
-  }
-
-  //function range [1, 9]
-  _getAIMove() {
-    const min = this.board.lowerPositionRangeBoundary;
-    const max = this.board.upperPositionRangeBoundary;
-    return Math.floor(min + Math.random() * max);
-  }
-
   _isWin(){
     return this.board.getWinLines().some(winLine =>
-      winLine.every(cell => cell === this.currentPlayer));
+      winLine.every(cell => cell === this.currentPlayer.getMark()));
   }
 
   _isDraw() {
@@ -81,7 +66,7 @@ module.exports = class Game {
   _isGameOver() {
 
     if(this._isWin()) {
-      displayWin(`Player ${this.currentPlayer} wins!\n`);
+      displayWin(`Player ${this.currentPlayer.getMark()} wins!\n`);
       return true;
     } else if(this._isDraw()) {
       display(`It's a draw!\n`);
